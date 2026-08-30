@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Connecting Instagram…</title>
+<meta name="robots" content="noindex"></head>
+<body style="font-family:system-ui;padding:2rem;max-width:40rem;margin:auto">
+<p>Completing Instagram connection…</p>
+<p id="fallback" style="display:none">If nothing happens, your AI Media Factory app isn't running.
+Start it, then <a id="retry" href="#">click here to retry</a>.</p>
+<script>
+  // Forwards Instagram's OAuth callback (code/state/error in the query string) to the local
+  // AI Media Factory API, which performs the token exchange server-side. Meta requires
+  // an HTTPS redirect URI on a verified domain, so this static page bridges to localhost.
+  // Default port 4004 = SP4 dev stack; override by appending &amf_port=NNNN via state-carried
+  // params if the app registers a different local port.
+  var params = new URLSearchParams(window.location.search);
+  var port = params.get('amf_port') || '4004';
+  var target = 'http://localhost:' + port + '/api/connections/instagram/oauth/callback' + window.location.search;
+  document.getElementById('retry').href = target;
+  document.getElementById('fallback').style.display = 'block';
+  window.location.replace(target);
+</script>
+</body></html>
