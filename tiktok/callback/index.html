@@ -9,10 +9,18 @@ Start it, then <a id="retry" href="#">click here to retry</a>.</p>
   // Forwards TikTok's OAuth callback (code/state/error in the query string) to the local
   // AI Media Factory API, which performs the token exchange server-side. TikTok requires
   // an HTTPS redirect URI on a verified domain, so this static page bridges to localhost.
-  // Default port 4004 = SP4 dev stack; override by appending &amf_port=NNNN via state-carried
-  // params if the app registers a different local port.
+  // The return port rides in the state suffix ({48-hex}.{port}) because TikTok echoes only
+  // code+state through the redirect — a custom query param would not survive it. The full
+  // state string, suffix included, is forwarded untouched; the API exact-matches it.
   var params = new URLSearchParams(window.location.search);
-  var port = params.get('amf_port') || '4004';
+  var port = 4004;
+  var state = params.get('state') || '';
+  var dot = state.indexOf('.');
+  if (dot > -1) {
+    var suffix = state.slice(dot + 1);
+    var p = parseInt(suffix, 10);
+    if (p >= 1024 && p <= 65535 && String(p) === suffix) port = p;
+  }
   var target = 'http://localhost:' + port + '/api/connections/tiktok/oauth/callback' + window.location.search;
   document.getElementById('retry').href = target;
   document.getElementById('fallback').style.display = 'block';
